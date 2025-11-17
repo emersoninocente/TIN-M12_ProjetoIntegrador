@@ -9,3 +9,6 @@ Desenvolvimento de sistema web simples mas funcional para gestão de usuários, 
 - Webserver: APACHE ou NGINX
 - Banco de dados: MySQL, mas devido ao uso de PDO, podendo ser migrado facilmente para qualquer outro SGBD
 - Linguagem de desenvolvimento: PHP8, sem qualquer outro framework com OOP e MVC.
+
+### Especificação de requisitos
+[Descrição de Requisitos](localhost)
