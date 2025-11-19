@@ -12,3 +12,9 @@ Desenvolvimento de sistema web simples mas funcional para gestão de usuários, 
 
 ### Especificação de requisitos
 [Descrição de Requisitos](https://github.com/emersoninocente/TIN-M12_ProjetoIntegrador/blob/main/Especificacao_Requisitos.md)
+
+### Modelos de telas
+- Verificar pasta respectiva
+
+### Códigos produzidos na disciplina anterior
+- Verificar pasta **code**
