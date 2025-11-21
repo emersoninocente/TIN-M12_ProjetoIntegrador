@@ -621,3 +621,414 @@ usuarios (1) ----< (N) reservas [bibliotecario_devolucao_id]
 11. Caso de uso encerrado
 
 ---
+
+## 8. Arquitetura do Sistema
+
+### 8.1 Padrão Arquitetural
+**MVC - Model-View-Controller**
+
+```
+┌─────────────┐
+│   Browser   │
+└──────┬──────┘
+       │ HTTP Request
+       ▼
+┌─────────────────────────────────┐
+│         VIEW (Interface)        │
+│   - HTML/CSS/JavaScript         │
+│   - Formulários                 │
+│   - Exibição de dados           │
+└──────────────┬──────────────────┘
+               │
+               ▼
+┌─────────────────────────────────┐
+│      CONTROLLER (Lógica)        │
+│   - AuthController              │
+│   - UsuarioController           │
+│   - LivroController             │
+│   - ReservaController           │
+│   - Validações                  │
+│   - Regras de negócio           │
+└──────────────┬──────────────────┘
+               │
+               ▼
+┌─────────────────────────────────┐
+│       MODEL (Dados)             │
+│   - UsuarioModel                │
+│   - LivroModel                  │
+│   - ReservaModel                │
+│   - Database (PDO)              │
+└──────────────┬──────────────────┘
+               │
+               ▼
+┌─────────────────────────────────┐
+│      MySQL Database             │
+│   - usuarios                    │
+│   - livros                      │
+│   - reservas                    │
+└─────────────────────────────────┘
+```
+
+### 8.2 Estrutura de Diretórios
+
+```
+sistema-biblioteca/
+│
+├── index.php                      # Página de login (raiz)
+│
+├── config/
+│   └── database.php              # Configurações do banco
+│
+├── src/
+│   ├── Controllers/              # Camada de controle
+│   │   ├── AuthController.php
+│   │   ├── UsuarioController.php
+│   │   ├── LivroController.php
+│   │   └── ReservaController.php
+│   │
+│   ├── Models/                   # Camada de dados
+│   │   ├── Database.php
+│   │   ├── UsuarioModel.php
+│   │   ├── LivroModel.php
+│   │   └── ReservaModel.php
+│   │
+│   └── Views/                    # Camada de apresentação
+│       ├── partials/
+│       │   └── header.php
+│       │
+│       ├── dashboard.php
+│       ├── processaLogin.php
+│       ├── processaLogout.php
+│       │
+│       ├── editarMeuPerfil.php
+│       ├── processaEditarMeuPerfil.php
+│       ├── processaAlterarMinhaSenha.php
+│       │
+│       ├── listarReservas.php
+│       ├── listarLivros.php
+│       ├── processaCriarReserva.php
+│       ├── processaCancelarReserva.php
+│       │
+│       ├── listarUsuarios.php
+│       ├── criarUsuario.php
+│       ├── editarUsuario.php
+│       ├── trocarSenhaUsuario.php
+│       ├── processaCriarUsuario.php
+│       ├── processaEditarUsuario.php
+│       ├── processaTrocarSenhaUsuario.php
+│       ├── processaDeletarUsuario.php
+│       │
+│       ├── listarLivrosGerenciar.php
+│       ├── criarLivro.php
+│       ├── editarLivro.php
+│       ├── processaCriarLivro.php
+│       ├── processaEditarLivro.php
+│       │
+│       ├── listarTodasReservas.php
+│       ├── processarRetirada.php
+│       ├── processaRetirada.php
+│       ├── processarDevolucao.php
+│       └── processaDevolucao.php
+│
+├── public/
+│   └── style.css                 # Estilos CSS
+│
+├── database_schema.sql           # Script de criação do banco
+└── README.md                     # Documentação
+```
+
+### 8.3 Fluxo de Dados
+
+**Exemplo: Criação de Reserva**
+
+```
+1. Usuário (View) → Clica em "Reservar Livro"
+   ↓
+2. processaCriarReserva.php (View) → Captura dados
+   ↓
+3. ReservaController (Controller) → Valida e processa
+   ↓
+4. ReservaModel (Model) → Executa INSERT no banco
+   ↓
+5. Database (PDO) → Comunica com MySQL
+   ↓
+6. Resposta → Retorna confirmação
+   ↓
+7. View → Exibe mensagem de sucesso
+```
+
+### 8.4 Padrões de Design Utilizados
+
+#### 8.4.1 Singleton (Database)
+```php
+// Garante uma única instância de conexão
+class Database {
+    private static $instance = null;
+    
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+}
+```
+
+#### 8.4.2 Métodos Estáticos (AuthController)
+```php
+// Funções utilitárias sem necessidade de instância
+class AuthController {
+    public static function verificarLogin() { }
+    public static function verificarPermissao($perfis) { }
+    public static function getUsuarioLogado() { }
+}
+```
+
+#### 8.4.3 Dependency Injection (Controllers)
+```php
+// Controllers recebem dependências via construtor
+class ReservaController {
+    private $reservaModel;
+    private $livroModel;
+    
+    public function __construct() {
+        $this->reservaModel = new ReservaModel();
+        $this->livroModel = new LivroModel();
+    }
+}
+```
+
+---
+
+## 9. Interface do Usuário
+
+### 9.1 Princípios de Design
+
+#### 9.1.1 Consistência Visual
+- Paleta de cores: Gradiente roxo/azul (#667eea → #764ba2)
+- Tipografia: Segoe UI, Tahoma, Geneva, Verdana, sans-serif
+- Espaçamento: Grid de 8px
+- Border radius: 5-10px
+
+#### 9.1.2 Hierarquia Visual
+- Títulos principais: H1/H2 (24-32px)
+- Títulos secundários: H3 (18-20px)
+- Texto corpo: 14-16px
+- Texto auxiliar: 12px
+
+#### 9.1.3 Feedback Visual
+- Alertas de sucesso: Verde (#d4edda)
+- Alertas de erro: Vermelho (#f8d7da)
+- Alertas informativos: Azul (#d1ecf1)
+- Estados de hover: Elevação e mudança de cor
+
+### 9.2 Componentes Principais
+
+#### 9.2.1 Header/Menu de Navegação
+- Logo do sistema
+- Links principais (contextuais ao perfil)
+- Informações do usuário logado
+- Botão de logout
+
+#### 9.2.2 Tabelas
+- Cabeçalho fixo
+- Linhas zebradas para leitura
+- Ações por linha (editar, excluir, etc.)
+- Responsiva (scroll horizontal em mobile)
+
+#### 9.2.3 Formulários
+- Labels descritivas
+- Campos requeridos marcados com *
+- Hints/placeholders informativos
+- Validação HTML5
+- Mensagens de erro claras
+
+#### 9.2.4 Cards
+- Utilizado para livros no catálogo
+- Imagem/placeholder
+- Informações principais
+- Status de disponibilidade
+- Botões de ação
+
+#### 9.2.5 Botões
+- Primário (btn-novo): Ações principais - roxo
+- Secundário (btn-editar): Edições - azul
+- Perigo (btn-deletar): Exclusões - vermelho
+- Neutro (btn-cancelar): Cancelamentos - cinza
+
+### 9.3 Responsividade
+
+#### Breakpoints:
+- **Desktop**: > 1024px - Layout completo
+- **Tablet**: 768px - 1024px - Layout adaptado
+- **Mobile**: < 768px - Layout empilhado
+
+#### Adaptações Mobile:
+- Menu hamburguer
+- Tabelas com scroll horizontal
+- Cards em coluna única
+- Formulários em coluna única
+- Botões full-width
+
+---
+
+## 10. Testes
+
+### 10.1 Estratégia de Testes
+
+#### 10.1.1 Testes Funcionais
+**Objetivo:** Verificar se todas as funcionalidades atendem aos requisitos
+
+**Casos de Teste Prioritários:**
+1. Login com credenciais válidas
+2. Login com credenciais inválidas
+3. Cadastro de usuário com dados válidos
+4. Cadastro de usuário com e-mail duplicado
+5. Cadastro de livro com ISBN válido
+6. Cadastro de livro com ISBN duplicado
+7. Reserva de livro disponível
+8. Tentativa de reserva de livro indisponível
+9. Cancelamento de reserva pendente
+10. Processamento de retirada
+11. Processamento de devolução
+12. Alteração de senha com senha atual correta
+13. Alteração de senha com senha atual incorreta
+14. Busca de livros por múltiplos critérios
+15. Verificação de permissões por perfil
+
+#### 10.1.2 Testes de Validação
+**Objetivo:** Garantir que validações funcionam corretamente
+
+**Validações a Testar:**
+- Formato de e-mail
+- Força de senha
+- Algoritmo de CPF
+- Formato de ISBN (ISBN-10 e ISBN-13)
+- Formato de telefone
+- Datas futuras
+- Quantidades não negativas
+- Campos obrigatórios
+
+#### 10.1.3 Testes de Segurança
+**Objetivo:** Verificar proteções contra vulnerabilidades
+
+**Testes Essenciais:**
+- SQL Injection em todos os formulários
+- XSS em campos de texto livre
+- CSRF em formulários críticos
+- Acesso direto a páginas protegidas (sem login)
+- Escalação de privilégios
+- Session hijacking
+- Senha armazenada em hash (não plain text)
+
+#### 10.1.4 Testes de Usabilidade
+**Objetivo:** Avaliar experiência do usuário
+
+**Aspectos a Avaliar:**
+- Clareza de navegação
+- Tempo para completar tarefas
+- Feedback adequado de ações
+- Responsividade em diferentes dispositivos
+- Legibilidade de textos
+- Intuitividade de formulários
+
+### 10.2 Cenários de Teste Detalhados
+
+#### CT01 - Login com Sucesso
+**Pré-condições:** Usuário cadastrado (usuario@biblioteca.com / User@123)  
+**Passos:**
+1. Acessar index.php
+2. Informar e-mail: usuario@biblioteca.com
+3. Informar senha: User@123
+4. Clicar em "Entrar"
+
+**Resultado Esperado:**
+- Redirecionamento para dashboard.php
+- Nome do usuário exibido no header
+- Menu contextual ao perfil visível
+
+#### CT02 - Criar Reserva com Sucesso
+**Pré-condições:** Usuário logado, livro disponível  
+**Passos:**
+1. Acessar listarLivros.php
+2. Localizar livro com quantidade > 0
+3. Clicar em "Reservar"
+4. Confirmar ação
+
+**Resultado Esperado:**
+- Mensagem "Reserva criada com sucesso"
+- Reserva aparece em "Minhas Reservas"
+- Status da reserva: "Pendente"
+
+#### CT03 - Processar Retirada
+**Pré-condições:** Bibliotecário logado, reserva pendente  
+**Passos:**
+1. Acessar listarTodasReservas.php
+2. Clicar em "Processar Retirada" em reserva pendente
+3. Definir data prevista devolução (+14 dias)
+4. Clicar em "Confirmar Retirada"
+
+**Resultado Esperado:**
+- Mensagem "Retirada processada com sucesso"
+- Status alterado para "Ativa"
+- Data retirada = hoje
+- Bibliotecário registrado
+
+#### CT04 - Validação de ISBN Duplicado
+**Pré-condições:** Bibliotecário logado, ISBN já cadastrado  
+**Passos:**
+1. Acessar criarLivro.php
+2. Preencher formulário
+3. Informar ISBN existente (978-8535908794)
+4. Submeter formulário
+
+**Resultado Esperado:**
+- Mensagem "Este ISBN já está cadastrado no sistema"
+- Livro não cadastrado
+- Formulário mantém dados preenchidos
+
+### 10.3 Matriz de Rastreabilidade
+
+| Requisito | Caso de Teste | Status |
+|-----------|---------------|--------|
+| RF01 | CT01 | ✓ |
+| RF02 | CT05 | ✓ |
+| RF04 | CT06, CT07 | ✓ |
+| RF11 | CT04, CT08 | ✓ |
+| RF16 | CT02, CT09 | ✓ |
+| RF18 | CT10 | ✓ |
+| RF20 | CT03 | ✓ |
+| RF21 | CT11 | ✓ |
+| RNF08 | CT12 | ✓ |
+| RNF09 | CT13 | ✓ |
+| RNF10 | CT14 | ✓ |
+
+---
+
+## 11. Glossário
+
+| Termo | Definição |
+|-------|-----------|
+| **Acervo** | Conjunto de livros disponíveis na biblioteca |
+| **Ativo** | Status que indica se um registro está habilitado no sistema |
+| **Autenticação** | Processo de verificação de identidade do usuário |
+| **Autorização** | Processo de verificação de permissões do usuário |
+| **Bibliotecário** | Usuário com privilégios intermediários para gestão da biblioteca |
+| **CRUD** | Create, Read, Update, Delete - operações básicas em banco de dados |
+| **Dashboard** | Página principal após login com resumo de informações |
+| **Devolução** | Ato de retornar livro emprestado à biblioteca |
+| **Exemplar** | Cada cópia física de um livro |
+| **Hash** | Resultado de função criptográfica unidirecional |
+| **ISBN** | Código internacional único que identifica livros |
+| **MVC** | Model-View-Controller - padrão arquitetural |
+| **PDO** | PHP Data Objects - interface para acesso a banco de dados |
+| **Perfil** | Conjunto de permissões associado a um usuário |
+| **Prepared Statement** | Query parametrizada que previne SQL Injection |
+| **Reserva** | Solicitação de empréstimo de um livro |
+| **Retirada** | Ato de emprestar livro ao usuário |
+| **Sessão** | Período de autenticação ativa do usuário |
+| **Singleton** | Padrão que garante instância única de uma classe |
+| **SQL Injection** | Ataque que explora vulnerabilidades em queries SQL |
+| **XSS** | Cross-Site Scripting - ataque via injeção de scripts |
+
+---

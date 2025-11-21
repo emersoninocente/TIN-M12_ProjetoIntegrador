@@ -14,7 +14,7 @@ Desenvolvimento de sistema web simples mas funcional para gestão de usuários, 
 [Descrição de Requisitos](https://github.com/emersoninocente/TIN-M12_ProjetoIntegrador/blob/main/Especificacao_Requisitos.md)
 
 ### Modelos de telas
-- Verificar pasta respectiva
+- [Modelo](https://github.com/emersoninocente/TIN-M12_ProjetoIntegrador/tree/main/Modelo_Paginas)
 
 ### Códigos produzidos na disciplina anterior
-- Verificar pasta **code**
+- Verificar pasta [**code**](https://github.com/emersoninocente/TIN-M12_ProjetoIntegrador/tree/main/code)
