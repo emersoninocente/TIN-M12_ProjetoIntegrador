@@ -71,4 +71,27 @@ class UsuarioModel {
             throw new Exception("Error Processing Request", 1);
         }
     }
+
+    // Novos métodos para processo de Login
+    /**
+     * Busca um usuário pelo e-mail para o processo de login.
+     * Inclui a senha para verificação.
+     */
+    public function findByEmail($email) {
+        $query = "SELECT * FROM " . $this->table . " WHERE email = ? AND ativo = 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$email]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    /**
+     * Busca um usuário pelo ID.
+     * Oculta a senha por segurança.
+     */
+    public function findById($id) {
+        $query = "SELECT id, nome, email, cpf, telefone, perfil, ativo 
+                  FROM " . $this->table . " WHERE id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
